@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import * as Tone from 'tone';
 import { Mp3Encoder } from '@breezystack/lamejs'; // MP3 encoder
 import "../css/Overlay.css"; // css
+import overlayImg from "../images/overlay.png";
 
 export default function Overlay({ onBack }) {
   const [tracks, setTracks] = useState([]);
@@ -246,12 +247,25 @@ export default function Overlay({ onBack }) {
 
   /* UI */
   return (
-    <div className="overlay-page">
+    <div className="overlay">
       <div className="hero">
-        <h1 className="hero-title">Overlay</h1>
-        <p className="hero-subtitle">
-          Upload multiple audio files created in Studio and play them together to create layered mixes.
-        </p>
+        <div className="hero-content">
+          <div className="hero-text">
+            <h1 className="hero-title">Overlay</h1>
+            <p className="hero-subtitle">
+              Upload multiple audio files created in Studio and play 
+              them together to create layered mixes.
+            </p>
+          </div>
+
+          <div className="hero-image-container">
+            <img
+              src={overlayImg}
+              alt="Overlay visual"
+              className="hero-image"
+            />
+          </div>
+        </div>
       </div>
 
       <div className="card">
@@ -389,17 +403,20 @@ export default function Overlay({ onBack }) {
             onClick={stopAll}
             disabled={!isPlaying}
           >
-            ■ Stop
+            ⏹ Stop
           </button>
 
           {/* MP3 format download */}
           <button className="download-button" onClick={() => downloadMix("mp3")}>
-            ⬇ Download MP3
+            🡻 Download MP3
           </button>
         </div>
       </div>
-
-      <button onClick={onBack} className="back-button">← Back to Home</button>
+      
+      {/* Back Button */}
+      <div className="back-container">
+        <button onClick={onBack} className="back-button">← Back to Home</button>
+      </div>
     </div>
   );
 }
