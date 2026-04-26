@@ -42,7 +42,7 @@ const instrumentConfigs = {
   }
 };
 
-const Studio = ({ instrumentName, onBack }) => {
+const Studio = ({ instrumentName, onBack, onRecordingChange, onNotesChange }) => {
   const [isRecording, setIsRecording] = useState(false);
   const [recordedData, setRecordedData] = useState([]);
   const [keyMap, setKeyMap] = useState(visualMap);
@@ -66,6 +66,9 @@ const Studio = ({ instrumentName, onBack }) => {
   useEffect(() => {
     isRecordingRef.current = isRecording;
   }, [isRecording]);
+
+  useEffect(() => { onRecordingChange?.(isRecording); }, [isRecording, onRecordingChange]);
+  useEffect(() => { onNotesChange?.(recordedData.length > 0); }, [recordedData, onNotesChange]);
 
   // 2. DEFINE toggleRecording FIRST: Use useCallback for stability
   const toggleRecording = useCallback(() => {
@@ -270,14 +273,16 @@ const Studio = ({ instrumentName, onBack }) => {
       <header className="studio-header">
         <h2 className="studio-title">{instrumentName} Studio</h2>
 
-        <div className="studio-controls">
-          <button 
+        <div className="studio-controls" data-tutorial="studio-controls">
+          <button
+            data-tutorial="edit-keys-btn"
             className={`edit-toggle-btn ${isEditMode ? "active" : ""}`}
             onClick={() => setIsEditMode(!isEditMode)}
           >
             {isEditMode ? "✅ Save Keys" : "⌨️ Edit Keys"}
           </button>
           <button
+            data-tutorial="record-btn"
             onClick={toggleRecording}
             className={`record-btn ${isRecording ? "recording" : ""}`}
           >
@@ -285,7 +290,7 @@ const Studio = ({ instrumentName, onBack }) => {
           </button>
 
           {!isRecording && recordedData.length > 0 && (
-            <button className="save-score-btn" onClick={saveScoreAsImage}>
+            <button data-tutorial="save-score-btn" className="save-score-btn" onClick={saveScoreAsImage}>
               💾 Save Score Image
             </button>
           )}
@@ -293,13 +298,13 @@ const Studio = ({ instrumentName, onBack }) => {
       </header>
 
       {/* RESTRUCTURED SCORE AREA */}
-      <div className="score-area" ref={scoreAreaRef}>
+      <div className="score-area" ref={scoreAreaRef} data-tutorial="score-area">
         {/* Label is now at the TOP */}
         <p className="score-label">Real-time VexFlow Notation</p>
         <Notation notes={recordedData} />
       </div>
 
-      <div className="keyboard-area">
+      <div className="keyboard-area" data-tutorial="keyboard-area">
         <p className="instruction-text">
           Use the keyboard to make {instrumentName.toLowerCase()} sounds (Range: {startRange} - {endRange})
         </p>
