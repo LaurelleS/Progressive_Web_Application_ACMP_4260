@@ -65,6 +65,8 @@ const Studio = ({ instrumentName, onBack, onHasNotesChange, onRecordingChange })
   ========================= */
   const [isRecording, setIsRecording] = useState(false);
   const [recordedData, setRecordedData] = useState([]);
+  const [popup, setPopup] = useState(null); // { key, note, x, y }
+  const popupRef = useRef(null);
 
   useEffect(() => {
     if (onHasNotesChange) {
@@ -111,12 +113,40 @@ const Studio = ({ instrumentName, onBack, onHasNotesChange, onRecordingChange })
   }, [isRecording]);
 
   /* =========================
+     CLOSE POPUP ON OUTSIDE CLICK
+  ========================= */
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (popupRef.current && !popupRef.current.contains(e.target)) {
+        setPopup(null);
+      }
+    };
+    if (popup) document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [popup]);
+
+  /* =========================
      NOTE TRANSPOSITION HELPER
   ========================= */
   const getFinalNote = (baseNote, config) =>
     Tone.Frequency(baseNote)
       .transpose(config.offset || 0)
       .toNote();
+
+  /* =========================
+     KEY CLICK HANDLER (popup)
+  ========================= */
+  const handleKeyClick = (key, note, e) => {
+    if (isEditMode) {
+      const newNote = prompt(`Enter new note for ${key.toUpperCase()}`, keyMap[key]);
+      if (newNote) setKeyMap(prev => ({ ...prev, [key]: newNote }));
+      return;
+    }
+    const rect = e.currentTarget.getBoundingClientRect();
+    setPopup(prev =>
+      prev && prev.key === key ? null : { key, note, x: rect.left + rect.width / 2, y: rect.top }
+    );
+  };
 
   /* =========================
      AUDIO ENGINE + KEYBOARD INPUT
@@ -135,9 +165,6 @@ const Studio = ({ instrumentName, onBack, onHasNotesChange, onRecordingChange })
     sampler.connect(destRef.current);
     samplerRef.current = sampler;
 
-    /* =========================
-       KEY DOWN HANDLER
-    ========================= */
     const handleKeyDown = async (e) => {
       if (e.repeat || isEditMode) return;
 
@@ -156,9 +183,6 @@ const Studio = ({ instrumentName, onBack, onHasNotesChange, onRecordingChange })
       }
     };
 
-    /* =========================
-       KEY UP HANDLER
-    ========================= */
     const handleKeyUp = (e) => {
       if (isEditMode) return;
 
@@ -171,7 +195,6 @@ const Studio = ({ instrumentName, onBack, onHasNotesChange, onRecordingChange })
 
       if (isRecordingRef.current && activeNotesRef.current[key]) {
         const { startTime: noteStart } = activeNotesRef.current[key];
-
         const duration = Tone.now() - startTime.current - noteStart;
 
         setRecordedData(prev => [
@@ -180,7 +203,6 @@ const Studio = ({ instrumentName, onBack, onHasNotesChange, onRecordingChange })
         ]);
 
         window.dispatchEvent(new CustomEvent("note-played"));
-
         delete activeNotesRef.current[key];
       }
     };
@@ -235,7 +257,6 @@ const Studio = ({ instrumentName, onBack, onHasNotesChange, onRecordingChange })
   useEffect(() => {
     const handleEnterKey = (e) => {
       if (e.repeat || isEditMode) return;
-
       if (e.key === "Enter") {
         e.preventDefault();
         toggleRecording();
@@ -243,10 +264,7 @@ const Studio = ({ instrumentName, onBack, onHasNotesChange, onRecordingChange })
     };
 
     window.addEventListener("keydown", handleEnterKey);
-
-    return () => {
-      window.removeEventListener("keydown", handleEnterKey);
-    };
+    return () => window.removeEventListener("keydown", handleEnterKey);
   }, [toggleRecording, isEditMode]);
 
   /* =========================
@@ -281,16 +299,13 @@ const Studio = ({ instrumentName, onBack, onHasNotesChange, onRecordingChange })
         .filter(n => n.time >= start && n.time < start + secondsPerLine)
         .forEach(n => {
           const keys = n.note.slice(0, -1).toLowerCase() + "/" + n.note.slice(-1);
-
           let d = "q";
           if (n.duration > 1.5) d = "w";
           else if (n.duration > 0.75) d = "h";
           else if (n.duration < 0.2) d = "8";
 
           const note = new StaveNote({ clef: "treble", keys: [keys], duration: d });
-
           if (n.note.includes("#")) note.addModifier(new Accidental("#"), 0);
-
           note.setContext(vf).setStave(stave).draw();
         });
     }
@@ -320,6 +335,28 @@ const Studio = ({ instrumentName, onBack, onHasNotesChange, onRecordingChange })
   ========================= */
   return (
     <div className="studio-container">
+
+      {/* =====================
+          POPUP
+      ===================== */}
+      {popup && (
+        <div
+          ref={popupRef}
+          className="key-popup"
+          style={{ top: popup.y - 110, left: popup.x - 80 }}
+        >
+          <div className="key-popup-arrow" />
+          <div className="key-popup-section-label">keyboard key</div>
+          <div className="key-popup-key">{popup.key.toUpperCase()}</div>
+          <div className="key-popup-divider" />
+          <div className="key-popup-section-label">plays note</div>
+          <div className="key-popup-note">{popup.note}</div>
+          <div className="key-popup-hint">Press this key on your keyboard to play</div>
+          <button className="key-popup-dismiss" onClick={() => setPopup(null)}>
+            Got it
+          </button>
+        </div>
+      )}
 
       <header className="studio-header">
         <h2 className="studio-title">{instrumentName} Studio</h2>
@@ -363,18 +400,7 @@ const Studio = ({ instrumentName, onBack, onHasNotesChange, onRecordingChange })
             <div
               key={key}
               className={`key-box ${isEditMode ? "editable" : ""}`}
-              onClick={() => {
-                if (!isEditMode) return;
-
-                const newNote = prompt(
-                  `Enter new note for ${key.toUpperCase()}`,
-                  keyMap[key]
-                );
-
-                if (newNote) {
-                  setKeyMap(prev => ({ ...prev, [key]: newNote }));
-                }
-              }}
+              onClick={(e) => handleKeyClick(key, keyMap[key], e)}
             >
               <span className="key-label">{key.toUpperCase()}</span>
               <div className="note-label">{keyMap[key]}</div>
