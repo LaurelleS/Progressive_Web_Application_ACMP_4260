@@ -6,13 +6,16 @@ export default function InstrumentSelect({ onSelect, onBack }) {
     { name: "Guitar", icon: "🎸" },
     { name: "Piano", icon: "🎹" },
     { name: "Violin", icon: "🎻" },
-    { name: "Trumpet", icon: "🎺" }
+    { name: "Trumpet", icon: "🎺" },
+    { name: "Drums", icon: "🥁" },
+    { name: "Saxophone", icon: "🎷" }
   ];
 
   return (
     <div className="instrument-page">
       <h2 className="instrument-title">Select Your Sound</h2>
 
+      <div className="instrument-card">
       <div className="instrument-grid" data-tutorial="instrument-grid">
         {instruments.map((inst) => (
           <button
@@ -24,6 +27,7 @@ export default function InstrumentSelect({ onSelect, onBack }) {
             {inst.name}
           </button>
         ))}
+      </div>
       </div>
 
       <button className="inst-back-btn" onClick={onBack}>

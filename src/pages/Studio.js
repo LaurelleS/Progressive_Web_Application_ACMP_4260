@@ -16,6 +16,19 @@ const visualMap = {
   n: 'G5', m: 'A5', ',': 'B5', '.': 'C6', '/': 'D6'
 };
 
+const drumMap = {
+  q: "kick",
+  w: "snare",
+  e: "hihat",
+  r: "hihat open",
+  t: "clap",
+  a: "tom low",
+  s: "tom mid",
+  d: "tom high",
+  f: "crash",
+  g: "ride"
+};
+
 /* =========================
    INSTRUMENT CONFIGS
 ========================= */
@@ -52,6 +65,30 @@ const instrumentConfigs = {
       A3: "A3.mp3", C4: "C4.mp3", "A#4": "As4.mp3", "D#4": "Ds4.mp3",
       F3: "F3.mp3", F5: "F5.mp3", G4: "G4.mp3", D5: "D5.mp3"
     }
+  },
+    Saxophone: {
+    offset: 12,
+    baseUrl: "./sounds/sax/",
+    urls: {
+      A3: "A3.mp3", C4: "C4.mp3", "A#4": "As4.mp3", "D#4": "Ds4.mp3",
+      F3: "F3.mp3", F5: "F5.mp3", G4: "G4.mp3", D5: "D5.mp3"
+    }
+  },
+  Drums: {
+    isDrum: true,
+    baseUrl: "./sounds/drums/",
+    urls: {
+      kick: "kick.mp3",
+      snare: "snare.mp3",
+      hihat: "hihat_closed.mp3",
+      "hihat open": "hihat_open.mp3",
+      clap: "clap.mp3",
+      "tom low": "tom_low.mp3",
+      "tom mid": "tom_mid.mp3",
+      "tom high": "tom_high.mp3",
+      crash: "crash.mp3",
+      ride: "ride.mp3"
+    }
   }
 };
 
@@ -78,6 +115,15 @@ const Studio = ({ instrumentName, onBack, onHasNotesChange, onRecordingChange })
     const saved = localStorage.getItem("studio_keymap");
     return saved ? JSON.parse(saved) : visualMap;
   });
+
+  useEffect(() => {
+    if (instrumentName === "Drums") {
+      setKeyMap(drumMap);
+    } else {
+      setKeyMap(visualMap);
+    }
+  }, [instrumentName]);
+
   const [isEditMode, setIsEditMode] = useState(false);
 
   /* =========================
@@ -155,15 +201,30 @@ const Studio = ({ instrumentName, onBack, onHasNotesChange, onRecordingChange })
     destRef.current = Tone.getContext().createMediaStreamDestination();
     configRef.current = instrumentConfigs[instrumentName] || instrumentConfigs.Piano;
 
-    const sampler = new Tone.Sampler({
-      urls: configRef.current.urls,
-      baseUrl: configRef.current.baseUrl,
-      release: 1,
-      onload: () => console.log(`${instrumentName} loaded`)
-    }).toDestination();
+    let instrument;
 
-    sampler.connect(destRef.current);
-    samplerRef.current = sampler;
+    if (configRef.current.isDrum) {
+      instrument = new Tone.Players({
+        urls: configRef.current.urls,
+        baseUrl: process.env.PUBLIC_URL + "/sounds/drums/",
+        onload: () => {
+          console.log("🥁 Drums loaded");
+        }
+      }).toDestination();
+
+      samplerRef.current = instrument;
+
+    } else {
+      instrument = new Tone.Sampler({
+        urls: configRef.current.urls,
+        baseUrl: configRef.current.baseUrl,
+        release: 1,
+        onload: () => console.log(`${instrumentName} loaded`)
+      }).toDestination();
+    }
+
+    instrument.connect(destRef.current);
+    samplerRef.current = instrument;
 
     const handleKeyDown = async (e) => {
       if (e.repeat || isEditMode) return;
@@ -173,13 +234,37 @@ const Studio = ({ instrumentName, onBack, onHasNotesChange, onRecordingChange })
       if (!baseNote) return;
 
       if (Tone.getContext().state !== "running") await Tone.start();
+      await Tone.loaded();
 
+      // 🥁 DRUM MODE
+      if (configRef.current.isDrum) {
+        const players = samplerRef.current;
+
+        if (!players) return;
+
+        const player = players.player(baseNote);
+
+        if (!player) {
+          console.warn("No drum sample for:", baseNote);
+          return;
+        }
+
+        const now = Tone.now();
+        player.stop(now);
+        player.start(now);
+        return;
+      }
+
+      // 🎹 MELODIC MODE
       const finalNote = getFinalNote(baseNote, configRef.current);
-      sampler.triggerAttack(finalNote);
+      samplerRef.current.triggerAttack(finalNote);
 
       if (isRecordingRef.current) {
         const t = Tone.now() - startTime.current;
-        activeNotesRef.current[key] = { note: finalNote, startTime: t };
+        activeNotesRef.current[key] = {
+          note: finalNote,
+          startTime: t
+        };
       }
     };
 
@@ -190,8 +275,11 @@ const Studio = ({ instrumentName, onBack, onHasNotesChange, onRecordingChange })
       const baseNote = keyMapRef.current[key];
       if (!baseNote) return;
 
+      if (configRef.current.isDrum) return;
+
       const finalNote = getFinalNote(baseNote, configRef.current);
-      sampler.triggerRelease(finalNote);
+
+      samplerRef.current.triggerRelease(finalNote);
 
       if (isRecordingRef.current && activeNotesRef.current[key]) {
         const { startTime: noteStart } = activeNotesRef.current[key];
@@ -213,7 +301,10 @@ const Studio = ({ instrumentName, onBack, onHasNotesChange, onRecordingChange })
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
       window.removeEventListener("keyup", handleKeyUp);
-      sampler.dispose();
+
+      if (samplerRef.current) {
+        samplerRef.current.dispose();
+      }
     };
   }, [instrumentName, isEditMode]);
 
@@ -395,7 +486,7 @@ const Studio = ({ instrumentName, onBack, onHasNotesChange, onRecordingChange })
           Use the keyboard to make {instrumentName.toLowerCase()} sounds (Range: C2 - D6)
         </p>
 
-        <div className="key-row">
+        <div className={`key-row ${instrumentName === "Drums" ? "drums" : ""}`}>
           {Object.keys(keyMap).map((key) => (
             <div
               key={key}

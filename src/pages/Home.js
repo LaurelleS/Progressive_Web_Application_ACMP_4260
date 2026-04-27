@@ -30,11 +30,11 @@ export default function Home({ onStart }) {
 
       {/* Hero Text */}
       <div className="hero-content">
-        <h1 className="title">Glowworm 🐛</h1>
+        <h1 className="title">Glowworm Music Studio🐛</h1>
         <p className="subtitle">Compose. Record. Layer.</p>
 
         <p className="description">
-          Transform your QWERTY keyboard into a professional workstation.
+          Transform your QWERTY keyboard into a professional workstation.<br></br>
           Create symphonies with acoustic guitar, piano, violin, and trumpet.
         </p>
 
