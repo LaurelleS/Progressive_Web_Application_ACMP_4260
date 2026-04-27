@@ -121,11 +121,10 @@ export default function Tutorial({ currentView, onNavigate, onClose, isRecording
   const tooltipRef = useRef(null);
   const rafRef = useRef(null);
   const prevRectRef = useRef(null);
-  const wasRecordingRef = useRef(false);
 
   const current = STEPS[step];
   const isLast = step === STEPS.length - 1;
-  const isGated = current.gate === 'has-notes' && !hasNotes;
+  const isGated = current.gate === 'has-notes' && !(hasNotes || false);
 
   // ── Navigate to correct view when step changes via Next/Back ──
   useEffect(() => {
@@ -141,20 +140,34 @@ export default function Tutorial({ currentView, onNavigate, onClose, isRecording
     if (next !== -1) setStep(next);
   }, [currentView]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // ── Auto-advance on recording start / stop ──
+  // ── Auto-advance on recording start / stop (FIXED EVENT VERSION) ──
   useEffect(() => {
-    if (isRecording) {
-      wasRecordingRef.current = true;
-      if (STEPS[step].waitFor === 'recording-start') {
-        setStep(s => s + 1);
-      }
-    } else if (wasRecordingRef.current) {
-      wasRecordingRef.current = false;
-      if (STEPS[step].waitFor === 'recording-stop') {
-        setStep(s => s + 1);
-      }
-    }
-  }, [isRecording, step]);
+    const handleStart = () => {
+      setStep(prev => {
+        if (STEPS[prev]?.waitFor === 'recording-start') {
+          return prev + 1;
+        }
+        return prev;
+      });
+    };
+
+    const handleStop = () => {
+      setStep(prev => {
+        if (STEPS[prev]?.waitFor === 'recording-stop') {
+          return prev + 1;
+        }
+        return prev;
+      });
+    };
+
+    window.addEventListener("recording-start", handleStart);
+    window.addEventListener("recording-stop", handleStop);
+
+    return () => {
+      window.removeEventListener("recording-start", handleStart);
+      window.removeEventListener("recording-stop", handleStop);
+    };
+  }, []);
 
   // ── RAF loop: keeps spotlight rect live with actual DOM layout ──
   useEffect(() => {
