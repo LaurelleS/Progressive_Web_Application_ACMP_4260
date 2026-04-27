@@ -83,7 +83,7 @@ export default function App() {
             className="tutorial-launch-btn"
             onClick={() => { setView("home"); setTutorialActive(true); }}
           >
-            ? Tutorial
+            🤔 Tutorial
           </button>
         </div>
       </nav>
@@ -98,7 +98,7 @@ export default function App() {
           instrumentName={instrument}
           onBack={startApp}
           onRecordingChange={setIsRecording}
-          onNotesChange={setHasNotes}
+          onHasNotesChange={setHasNotes}
         />
       )}
       {view === "overlay" && <Overlay onBack={goBack} />}

@@ -57,13 +57,21 @@ const instrumentConfigs = {
 
 /* =========================
    STUDIO COMPONENT
-const Studio = ({ instrumentName, onBack }) => {
+========================= */
+const Studio = ({ instrumentName, onBack, onHasNotesChange, onRecordingChange }) => {
 
   /* =========================
      STATE MANAGEMENT
   ========================= */
   const [isRecording, setIsRecording] = useState(false);
   const [recordedData, setRecordedData] = useState([]);
+
+  useEffect(() => {
+    if (onHasNotesChange) {
+      onHasNotesChange(recordedData.length > 0);
+    }
+  }, [recordedData, onHasNotesChange]);
+
   const [keyMap, setKeyMap] = useState(() => {
     const saved = localStorage.getItem("studio_keymap");
     return saved ? JSON.parse(saved) : visualMap;
@@ -171,6 +179,8 @@ const Studio = ({ instrumentName, onBack }) => {
           { note: finalNote, time: noteStart, duration }
         ]);
 
+        window.dispatchEvent(new CustomEvent("note-played"));
+
         delete activeNotesRef.current[key];
       }
     };
@@ -209,11 +219,35 @@ const Studio = ({ instrumentName, onBack }) => {
 
       mediaRecorder.current.start();
       setIsRecording(true);
+      if (onRecordingChange) onRecordingChange(true);
+      window.dispatchEvent(new CustomEvent("recording-start"));
     } else {
       mediaRecorder.current.stop();
       setIsRecording(false);
+      if (onRecordingChange) onRecordingChange(false);
+      window.dispatchEvent(new CustomEvent("recording-stop"));
     }
-  }, [isRecording, instrumentName]);
+  }, [isRecording, instrumentName, onRecordingChange]);
+
+  /* =========================
+    ENTER KEY → TOGGLE RECORDING
+  ========================= */
+  useEffect(() => {
+    const handleEnterKey = (e) => {
+      if (e.repeat || isEditMode) return;
+
+      if (e.key === "Enter") {
+        e.preventDefault();
+        toggleRecording();
+      }
+    };
+
+    window.addEventListener("keydown", handleEnterKey);
+
+    return () => {
+      window.removeEventListener("keydown", handleEnterKey);
+    };
+  }, [toggleRecording, isEditMode]);
 
   /* =========================
      SCORE EXPORT (VEXFLOW → PNG)
