@@ -22,7 +22,7 @@ export default function Home({ onStart }) {
     test: "Experiment with sounds instantly. Play instruments using your keyboard and explore Glowworm’s sonic playground.",
     record: "Capture your performance with studio‑quality sampling. Layer takes and build your musical ideas.",
     overlay: "Blend, align, and visualize your tracks. The overlay engine helps you refine timing and harmony.",
-    share: "Export your creations to mp3 format and share them with collaborators or friends. Glowworm makes distribution effortless."
+    share: "Export your creations to mp3 format and share them with collaborators or friends. Glowworm Music Studio makes distribution effortless."
   };
 
   return (

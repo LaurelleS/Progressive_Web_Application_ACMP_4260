@@ -17,16 +17,27 @@ const visualMap = {
 };
 
 const drumMap = {
-  q: "kick",
-  w: "snare",
-  e: "hihat",
-  r: "hihat open",
-  t: "clap",
+  q: "roll", 
+  w: "kick",
+  e: "snare",
+  r: "snare off",
+
   a: "tom low",
   s: "tom mid",
   d: "tom high",
-  f: "crash",
-  g: "ride"
+  f: "stick",
+
+  z: "flams low",
+  x: "flams mid",
+  c: "flams high",
+  v: "rim shot",
+  
+  i: "hihat", 
+  o: "hihat open",
+  p: "clap", 
+  j: "crash",
+  k: "ride",
+  l: "bell",
 };
 
 /* =========================
@@ -41,6 +52,7 @@ const instrumentConfigs = {
       "D#2": "Ds2.mp3", "D#3": "Ds3.mp3", "D#4": "Ds4.mp3", "D#5": "Ds5.mp3"
     }
   },
+
   Guitar: {
     offset: 0,
     baseUrl: "./sounds/guitar/",
@@ -50,6 +62,7 @@ const instrumentConfigs = {
       C4: "C4.mp3", E4: "E4.mp3"
     }
   },
+
   Violin: {
     offset: 12,
     baseUrl: "./sounds/violin/",
@@ -58,6 +71,7 @@ const instrumentConfigs = {
       C5: "C5.mp3", E5: "E5.mp3", G5: "G5.mp3", C6: "C6.mp3"
     }
   },
+
   Trumpet: {
     offset: 12,
     baseUrl: "./sounds/trumpet/",
@@ -66,31 +80,120 @@ const instrumentConfigs = {
       F3: "F3.mp3", F5: "F5.mp3", G4: "G4.mp3", D5: "D5.mp3"
     }
   },
-    Saxophone: {
+
+  Saxophone: {
     offset: 12,
     baseUrl: "./sounds/sax/",
     urls: {
-      A3: "A3.mp3", C4: "C4.mp3", "A#4": "As4.mp3", "D#4": "Ds4.mp3",
+      A4: "A4.mp3", C4: "C4.mp3", "A#4": "As4.mp3", "D#4": "Ds4.mp3",
       F3: "F3.mp3", F5: "F5.mp3", G4: "G4.mp3", D5: "D5.mp3"
     }
   },
+
+  "Electric Guitar": {
+    offset: 12,
+    baseUrl: "./sounds/guitar-electric/",
+    urls: {
+      A2: "A2.mp3", "C#2": "Cs2.mp3", "F#3": "Fs3.mp3", A4: "A4.mp3", 
+      C4: "C4.mp3", "D#4": "Ds4.mp3", A5: "A5.mp3", "D#5": "Ds5.mp3",
+      "F#5": "Fs5.mp3", 
+    }
+  },
+
+  Trombone: {
+    offset: 12,
+    baseUrl: "./sounds/trombone/",
+    urls: {
+      "A#2": "As2.mp3", "C#2": "Cs2.mp3", D3: "D3.mp3",
+      C4: "C4.mp3", "D#4": "Ds4.mp3", F4: "F4.mp3",
+    }
+  },
+
+  Xylophone: {
+    offset: 12,
+    baseUrl: "./sounds/xylophone/",
+    urls: {
+      G4: "G4.mp3", "C5": "C5.mp3", C6: "C5.mp3",
+      "G6": "G6.mp3", C7: "C7.mp3", G7: "G7.mp3",
+      C8: "C8.mp3"
+    }
+  },
+
+  "Electric Bass": {
+    offset: 12,
+    baseUrl: "./sounds/bass-electric/",
+    urls: {
+      "C#1": "Cs1.mp3", E1: "E1.mp3", G1: "G1.mp3", "C#2": "Cs2.mp3", 
+      E2: "E5.mp3", G2: "G2.mp3", "A#3": "As3.mp3", "C#3": "Cs3.mp3", 
+      E3: "E3.mp3", G3: "G3.mp3", E4: "E4.mp3", G4: "G4.mp3",
+      "C#5": "Cs5.mp3"
+    }
+  },
+
+  Clarinet: {
+    offset: 12,
+    baseUrl: "./sounds/clarinet/",
+    urls: {
+      "A#3": "As3.mp3", D3: "D3.mp3", F3: "F3.mp3", "A#4": "As4.mp3", 
+      "D4": "D4.mp3", F4: "F4.mp3", "A#5": "As5.mp3", D5: "D5.mp3", 
+      F5: "F5.mp3", D6: "D6.mp3", "F#6": "Fs6.mp3"
+    }
+  },
+
+  Flute: {
+    offset: 12,
+    baseUrl: "./sounds/flute/",
+    urls: {
+      A4: "A4.mp3", C4: "C4.mp3", E4: "E4.mp3", A5: "A5.mp3",
+      C5: "C5.mp3", E5: "E5.mp3", A6: "A6.mp3", C6: "C6.mp3",
+      E6: "E5.mp3"
+    }
+  },
+
+  Synthesizer: {
+    offset: 12,
+    baseUrl: "./sounds/synth/",
+    urls: {
+      C2: "file1.mp3", D2: "file2.mp3", E2: "file3.mp3", F2: "file4.mp3",
+      G2: "file5.mp3", A2: "file6.mp3", B2: "file7.mp3", C3: "file8.mp3",
+      D3: "file9.mp3", E3: "file10.mp3", F3: "file11.mp3", G3: "file12.mp3",
+      A3: "file13.mp3", B3: "file14.mp3", C4: "file15.mp3", D4: "file16.mp3",
+      E4: "file17.mp3", F4: "file18.mp3", G4: "file19.mp3", A4: "file20.mp3",
+      B4: "file21.mp3", C5: "file22.mp3", D5: "file23.mp3", E5: "file24.mp3",
+      F5: "file25.mp3"
+    }
+  },
+
   Drums: {
     isDrum: true,
     baseUrl: "./sounds/drums/",
     urls: {
-      kick: "kick.mp3",
-      snare: "snare.mp3",
-      hihat: "hihat_closed.mp3",
-      "hihat open": "hihat_open.mp3",
-      clap: "clap.mp3",
-      "tom low": "tom_low.mp3",
-      "tom mid": "tom_mid.mp3",
-      "tom high": "tom_high.mp3",
-      crash: "crash.mp3",
-      ride: "ride.mp3"
+      kick: "kick.wav",
+      snare: "snare.wav",
+      "snare off": "snare_off.wav",
+      hihat: "hihat_closed.wav",
+      "hihat open": "hihat_open.wav",
+      clap: "clap.wav",
+      "tom low": "tom_low.wav",
+      "tom mid": "tom_mid.wav",
+      "tom high": "tom_high.wav",
+      crash: "crash.wav",
+      ride: "ride.wav",
+      roll: "roll.wav",
+      "flams low": "flams_low.wav",
+      "flams mid": "flams_mid.wav",
+      "flams high": "flams_high.wav",
+      bell: "bell.wav",
+      "rim shot": "rimshot.wav",
+      stick: "stick.wav"
     }
   }
 };
+
+  /* =========================
+  DRUM → NOTATION NOTE MAP
+  ========================= */
+  const getNotationNote = () => "C5";
 
 /* =========================
    STUDIO COMPONENT
@@ -179,6 +282,7 @@ const Studio = ({ instrumentName, onBack, onHasNotesChange, onRecordingChange })
       .transpose(config.offset || 0)
       .toNote();
 
+
   /* =========================
      KEY CLICK HANDLER (popup)
   ========================= */
@@ -239,19 +343,19 @@ const Studio = ({ instrumentName, onBack, onHasNotesChange, onRecordingChange })
       // 🥁 DRUM MODE
       if (configRef.current.isDrum) {
         const players = samplerRef.current;
-
-        if (!players) return;
-
         const player = players.player(baseNote);
-
-        if (!player) {
-          console.warn("No drum sample for:", baseNote);
-          return;
-        }
-
         const now = Tone.now();
         player.stop(now);
         player.start(now);
+
+        if (isRecordingRef.current) {
+          const t = Tone.now() - startTime.current;
+          activeNotesRef.current[key] = {
+            note: getNotationNote(),   // always C5
+            startTime: t
+          };
+        }
+
         return;
       }
 
@@ -275,7 +379,25 @@ const Studio = ({ instrumentName, onBack, onHasNotesChange, onRecordingChange })
       const baseNote = keyMapRef.current[key];
       if (!baseNote) return;
 
-      if (configRef.current.isDrum) return;
+      if (configRef.current.isDrum) {
+        const active = activeNotesRef.current[key];
+
+        // If no active note exists, bail out safely
+        if (!active) return;
+
+        if (isRecordingRef.current) {
+          const { startTime: noteStart } = active;
+          const duration = Tone.now() - startTime.current - noteStart;
+
+          setRecordedData(prev => [
+            ...prev,
+            { note: active.note, time: noteStart, duration }
+          ]);
+        }
+
+        delete activeNotesRef.current[key];
+        return;
+      }
 
       const finalNote = getFinalNote(baseNote, configRef.current);
 
@@ -389,7 +511,8 @@ const Studio = ({ instrumentName, onBack, onHasNotesChange, onRecordingChange })
       recordedData
         .filter(n => n.time >= start && n.time < start + secondsPerLine)
         .forEach(n => {
-          const keys = n.note.slice(0, -1).toLowerCase() + "/" + n.note.slice(-1);
+          const pitch = n.note; // already a valid note like "C4"
+          const keys = pitch.slice(0, -1).toLowerCase() + "/" + pitch.slice(-1);
           let d = "q";
           if (n.duration > 1.5) d = "w";
           else if (n.duration > 0.75) d = "h";
@@ -457,7 +580,7 @@ const Studio = ({ instrumentName, onBack, onHasNotesChange, onRecordingChange })
             className={`edit-toggle-btn ${isEditMode ? "active" : ""}`}
             onClick={() => setIsEditMode(v => !v)}
           >
-            {isEditMode ? "✅ Save Keys" : "⌨️ Edit Keys"}
+            {isEditMode ? "✔ Save Keys" : "✎ Edit Keys"}
           </button>
 
           <button
